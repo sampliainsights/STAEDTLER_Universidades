@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8"/>
@@ -79,7 +79,7 @@
     .card-question{font-size:12px;color:var(--text-secondary);line-height:1.5;font-weight:400}
 
     /* KPI GRID */
-    .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    .kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
     .kpi-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-xl);padding:18px 16px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden;transition:box-shadow .2s,transform .2s}
     .kpi-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
     .kpi-card-bar{position:absolute;top:0;left:0;right:0;height:2px}
@@ -256,9 +256,13 @@
     #dataBanner{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:999;background:var(--text-primary);color:#fff;font-family:'Poppins',sans-serif;font-size:12px;font-weight:500;padding:12px 18px;border-radius:var(--r-xl);box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px;max-width:92vw}
 
     @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+    @keyframes surveyBg{0%{background-position:0% 50%;box-shadow:inset 0 0 8px 2px rgba(255,180,180,.2)}50%{background-position:100% 50%;box-shadow:inset 0 0 22px 6px rgba(255,140,140,.55)}100%{background-position:0% 50%;box-shadow:inset 0 0 8px 2px rgba(255,180,180,.2)}}
+    .btn-survey{background:linear-gradient(270deg,#ff1a3e,#8b0a1f,#ff4d6d,#a50d26,#ff1a3e)!important;background-size:300% 300%!important;animation:surveyBg 2.5s ease infinite;position:relative;overflow:hidden;}
+    .btn-survey::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at var(--sx,50%) var(--sy,50%),rgba(255,255,255,.32) 0%,transparent 65%);opacity:0;transition:opacity .25s;pointer-events:none;border-radius:inherit;}
+    .btn-survey:hover::after{opacity:1;}
 
     /* RESPONSIVE */
-    @media(max-width:1024px){.kpi-grid{grid-template-columns:repeat(3,1fr)}.insight-grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:1024px){.insight-grid{grid-template-columns:repeat(2,1fr)}}
     @media(max-width:768px){
       .nav{padding:0 16px}.hero{padding:24px 16px 20px}.main{padding:20px 16px 48px}
       .g2,.g3{grid-template-columns:1fr}.last-update{display:none}
@@ -321,11 +325,11 @@
             <div class="photo-tag">Madrid</div>
             <img
               class="photo-img"
-              src="assets/photos/reporte-1.jpg"
+              src="https://drive.google.com/thumbnail?id=1Pu26SGILZL44KUX1n6Q6pTGThtGvteqZ&sz=w1200"
               alt="Reporte fotográfico - Madrid"
               loading="lazy"
               decoding="async"
-              data-full="assets/photos/reporte-1.jpg"
+              data-full="https://drive.google.com/thumbnail?id=1Pu26SGILZL44KUX1n6Q6pTGThtGvteqZ&sz=w1200"
             />
             <button class="photo-zoom" type="button" aria-label="Ampliar imagen">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
@@ -336,11 +340,11 @@
             <div class="photo-tag">Barcelona</div>
             <img
               class="photo-img"
-              src="assets/photos/reporte-2.jpg"
+              src="https://drive.google.com/thumbnail?id=1uHfir464gVGJIkQoN1QjSglyPp5TQHV6&sz=w1200"
               alt="Reporte fotográfico - Barcelona"
               loading="lazy"
               decoding="async"
-              data-full="assets/photos/reporte-2.jpg"
+              data-full="https://drive.google.com/thumbnail?id=1uHfir464gVGJIkQoN1QjSglyPp5TQHV6&sz=w1200"
             />
             <button class="photo-zoom" type="button" aria-label="Ampliar imagen">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
@@ -406,7 +410,7 @@
 
     <!-- KPI ROW -->
     <div class="kpi-grid" style="margin-bottom:12px;">
-      <div class="kpi-card">
+      <div class="kpi-card" style="display:none;">
         <div class="kpi-card-bar" style="background:linear-gradient(90deg,var(--navy),#3b82f6);"></div>
         <div class="kpi-label">Encuestados</div>
         <div class="kpi-value" id="kpiTotal">—</div>
@@ -416,7 +420,7 @@
         <div class="kpi-card-bar" style="background:linear-gradient(90deg,var(--accent),#ef4444);"></div>
         <div class="kpi-label">Conocimiento previo</div>
         <div class="kpi-value" style="color:var(--accent);" id="kpiKnew">—</div>
-        <div class="kpi-sub">"La conocí en la activación"</div>
+        <div class="kpi-sub">Ya conocían la marca</div>
       </div>
       <div class="kpi-card">
         <div class="kpi-card-bar" style="background:linear-gradient(90deg,var(--amber),#fbbf24);"></div>
@@ -455,10 +459,6 @@
         <option value="">Todas</option>
         <option value="18-24">18-24</option>
         <option value="25-34">25-34</option>
-        <option value="35-44">35-44</option>
-        <option value="45-54">45-54</option>
-        <option value="55-64">55-64</option>
-        <option value="65+">65+</option>
       </select>
     </div>
 
@@ -518,10 +518,16 @@
     <!-- FOOTER -->
     <div class="footer">
       <span class="footer-info" id="footerInfo">Total encuestados: — · Campaña 28/04/2026 – 30/04/2026</span>
-      <button class="btn-primary" id="downloadPdfBtn">
-        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Descargar PDF
-      </button>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <a href="https://sampliainsights.github.io/samplia-evaluacion/" target="_blank" rel="noopener" class="btn-primary btn-survey" style="text-decoration:none;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="flex-shrink:0"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+          Encuesta de satisfacción
+        </a>
+        <button class="btn-primary" id="downloadPdfBtn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Descargar PDF
+        </button>
+      </div>
     </div>
   </main>
 
@@ -559,6 +565,7 @@
 
     const AZURE = ['#1e3a8a','#3b5bb8','#4f7cd9','#6b8ee0','#8da4e6','#aebced','#152a5f','#274aa8'];
 
+    const PHOTO_REPORT_URIS = { madrid: 'https://drive.google.com/thumbnail?id=1Pu26SGILZL44KUX1n6Q6pTGThtGvteqZ&sz=w1200', barcelona: 'https://drive.google.com/thumbnail?id=1uHfir464gVGJIkQoN1QjSglyPp5TQHV6&sz=w1200' };
     let COL = {};
 
     // Standalone minicards (sí/no questions shown below demographics)
@@ -887,8 +894,8 @@
       // Conocimiento previo: % que conoció en la activación
       const cIdx=getIdx('O5MLhMcywZIwfx14GBF4');
       const cArr=getColData(rows,cIdx);
-      const noConocia=cArr.filter(v=>{const l=norm(v);return l.includes('no los conocia')||l.includes('conoci en la activacion')||l.includes('no la conocia')||l.includes('no conocia');}).length;
-      document.getElementById('kpiKnew').textContent=cArr.length>0?pct(noConocia,cArr.length)+'%':'—';
+      const siConocia=cArr.filter(v=>{const l=norm(v);return l.includes('compradora')||l.includes('no los habia probado')||l.includes('comprado alguna vez');}).length;
+      document.getElementById('kpiKnew').textContent=cArr.length>0?pct(siConocia,cArr.length)+'%':'—';
 
       // Valoración media
       const vIdx=getIdx('wf7LWvBNoGLmDSFZNpA9');
@@ -1151,6 +1158,11 @@
       document.querySelectorAll('.photo-item').forEach(item=>{
         const img=item.querySelector('.photo-img');
         const btn=item.querySelector('.photo-zoom');
+        const key=(img&&img.dataset&&img.dataset.key)||'';
+        if(img&&key&&typeof PHOTO_REPORT_URIS==='object'&&PHOTO_REPORT_URIS[key]){
+          if(!img.getAttribute('src')) img.src=PHOTO_REPORT_URIS[key];
+          img.dataset.full=PHOTO_REPORT_URIS[key];
+        }
         if(img) img.style.cursor='zoom-in';
         const handler=()=>open((img&&img.dataset.full)|| (img&&img.src) || '', img?img.alt:'');
         if(btn) btn.addEventListener('click',handler);
@@ -1199,6 +1211,16 @@
     // Resize
     let rT;window.addEventListener('resize',()=>{clearTimeout(rT);rT=setTimeout(()=>{if(allRows.length)render(getFiltered());},250);});
 
+    // Survey button cursor spotlight
+    const surveyBtn=document.querySelector('.btn-survey');
+    if(surveyBtn){
+      surveyBtn.addEventListener('mousemove',e=>{
+        const r=surveyBtn.getBoundingClientRect();
+        surveyBtn.style.setProperty('--sx',((e.clientX-r.left)/r.width*100).toFixed(1)+'%');
+        surveyBtn.style.setProperty('--sy',((e.clientY-r.top)/r.height*100).toFixed(1)+'%');
+      });
+    }
+
     // Init
     document.getElementById('lastUpdate').textContent='Cargando…';
     fetchData();
@@ -1206,3 +1228,10 @@
   </script>
 </body>
 </html>
+
+
+
+
+
+
+
