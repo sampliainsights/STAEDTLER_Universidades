@@ -128,6 +128,27 @@
     .minicard-item .mc-bar{height:4px;border-radius:999px;background:var(--border);margin-top:4px;overflow:hidden}
     .minicard-item .mc-bar-fill{height:100%;border-radius:999px;transition:width .5s ease}
 
+    /* PHOTO REPORT */
+    .photo-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    .photo-item{position:relative;overflow:hidden;border-radius:var(--r-xl);border:1px solid var(--border);background:var(--bg-card);box-shadow:var(--shadow-sm);margin:0}
+    .photo-img{width:100%;height:100%;display:block;aspect-ratio:16/9;object-fit:cover;transform:scale(1);transition:transform .25s ease;position:relative;z-index:1}
+    .photo-item:hover .photo-img{transform:scale(1.02)}
+    .photo-tag{position:absolute;left:10px;top:10px;z-index:3;pointer-events:none;display:inline-flex;align-items:center;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:rgba(10,10,10,.62);border:1px solid rgba(255,255,255,.35);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:6px 10px;border-radius:999px}
+    .photo-zoom{position:absolute;right:10px;bottom:10px;width:36px;height:36px;border-radius:12px;border:1px solid rgba(255,255,255,.55);background:rgba(10,10,10,.45);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;box-shadow:0 8px 16px rgba(0,0,0,.22);transition:transform .15s ease,background .15s ease}
+    .photo-zoom:hover{transform:translateY(-1px);background:rgba(10,10,10,.55)}
+    .photo-zoom:focus{outline:none;box-shadow:0 0 0 3px rgba(37,99,235,.25),0 8px 16px rgba(0,0,0,.22)}
+    @media (max-width: 860px){
+      .photo-grid{grid-template-columns:1fr}
+    }
+
+    /* PHOTO MODAL */
+    .photo-modal{position:fixed;inset:0;background:rgba(10,10,10,.78);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;padding:24px;z-index:3000}
+    .photo-modal.is-open{display:flex}
+    .photo-modal-inner{position:relative;width:min(1100px,100%);max-height:calc(100vh - 48px);display:flex;align-items:center;justify-content:center}
+    .photo-modal-img{max-width:100%;max-height:100%;border-radius:18px;box-shadow:0 24px 70px rgba(0,0,0,.55);background:#111}
+    .photo-modal-close{position:absolute;top:12px;right:12px;width:40px;height:40px;border-radius:14px;border:1px solid rgba(255,255,255,.35);background:rgba(10,10,10,.55);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center}
+    .photo-modal-close:hover{background:rgba(10,10,10,.68)}
+
     /* RANKED LIST VIZ */
     .prank-list{display:flex;flex-direction:column;gap:0;padding:2px 0}
     .prank-item{display:flex;align-items:center;gap:12px;padding:9px 10px;border-radius:var(--r-sm);margin:0 -10px;transition:background .15s}
@@ -285,6 +306,49 @@
 
   <!-- MAIN -->
   <main class="main">
+
+    <!-- PHOTO REPORT -->
+    <div class="section-header">
+      <div class="section-dot"></div>
+      <div class="section-title">Reporte Fotográfico</div>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="card" style="margin-bottom:12px;">
+      <div class="card-inner">
+        <div class="photo-grid">
+          <figure class="photo-item">
+            <div class="photo-tag">Madrid</div>
+            <img
+              class="photo-img"
+              src="assets/photos/reporte-1.jpg"
+              alt="Reporte fotográfico - Madrid"
+              loading="lazy"
+              decoding="async"
+              data-full="assets/photos/reporte-1.jpg"
+            />
+            <button class="photo-zoom" type="button" aria-label="Ampliar imagen">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+            </button>
+          </figure>
+
+          <figure class="photo-item">
+            <div class="photo-tag">Barcelona</div>
+            <img
+              class="photo-img"
+              src="assets/photos/reporte-2.jpg"
+              alt="Reporte fotográfico - Barcelona"
+              loading="lazy"
+              decoding="async"
+              data-full="assets/photos/reporte-2.jpg"
+            />
+            <button class="photo-zoom" type="button" aria-label="Ampliar imagen">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+            </button>
+          </figure>
+        </div>
+      </div>
+    </div>
 
     <!-- TERRITORIAL -->
     <div class="section-header">
@@ -460,6 +524,16 @@
       </button>
     </div>
   </main>
+
+  <!-- PHOTO MODAL -->
+  <div class="photo-modal" id="photoModal" aria-hidden="true">
+    <div class="photo-modal-inner" role="dialog" aria-modal="true" aria-label="Vista ampliada de imagen">
+      <button class="photo-modal-close" id="photoModalClose" type="button" aria-label="Cerrar">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <img class="photo-modal-img" id="photoModalImg" alt="" src=""/>
+    </div>
+  </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
@@ -1046,6 +1120,44 @@
     }
 
     // ── EVENTS ──
+    // Photo modal
+    (function initPhotoModal(){
+      const modal=document.getElementById('photoModal');
+      const modalImg=document.getElementById('photoModalImg');
+      const closeBtn=document.getElementById('photoModalClose');
+      if(!modal||!modalImg||!closeBtn)return;
+
+      const open=(src,alt='')=>{
+        if(!src)return;
+        modalImg.src=src;
+        modalImg.alt=alt||'Imagen ampliada';
+        modal.classList.add('is-open');
+        modal.setAttribute('aria-hidden','false');
+        document.body.style.overflow='hidden';
+      };
+
+      const close=()=>{
+        modal.classList.remove('is-open');
+        modal.setAttribute('aria-hidden','true');
+        modalImg.src='';
+        modalImg.alt='';
+        document.body.style.overflow='';
+      };
+
+      closeBtn.addEventListener('click',close);
+      modal.addEventListener('click',(e)=>{ if(!e.target.closest('.photo-modal-inner')) close(); });
+      document.addEventListener('keydown',(e)=>{ if(e.key==='Escape'&&modal.classList.contains('is-open')) close(); });
+
+      document.querySelectorAll('.photo-item').forEach(item=>{
+        const img=item.querySelector('.photo-img');
+        const btn=item.querySelector('.photo-zoom');
+        if(img) img.style.cursor='zoom-in';
+        const handler=()=>open((img&&img.dataset.full)|| (img&&img.src) || '', img?img.alt:'');
+        if(btn) btn.addEventListener('click',handler);
+        if(img) img.addEventListener('click',handler);
+      });
+    })();
+
     ['fGender','fAge'].forEach(id=>document.getElementById(id).addEventListener('change',()=>render(getFiltered())));
     document.getElementById('lastUpdate').title='Haz clic para recargar';
     document.getElementById('lastUpdate').addEventListener('click',fetchData);
