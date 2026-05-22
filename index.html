@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8"/>
@@ -276,7 +276,7 @@
 
   <!-- NAV -->
   <nav class="nav">
-    <img class="nav-logo" src="https://samplia.com/assets/img/Samplia.svg" alt="Samplia"/>
+    <img class="nav-logo" src="https://samplia.com/assets/img/samplia-logo.svg" alt="Samplia"/>
     <div class="nav-right">
       <div class="live-badge"><div class="live-dot"></div>En vivo</div>
       <span class="last-update" id="lastUpdate">Cargando…</span>
@@ -312,13 +312,13 @@
   <main class="main">
 
     <!-- PHOTO REPORT -->
-    <div class="section-header">
+    <div class="section-header" data-pdf-skip>
       <div class="section-dot"></div>
       <div class="section-title">Reporte Fotográfico</div>
       <div class="section-line"></div>
     </div>
 
-    <div class="card" style="margin-bottom:12px;">
+    <div class="card" style="margin-bottom:12px;" data-pdf-skip>
       <div class="card-inner">
         <div class="photo-grid">
           <figure class="photo-item">
@@ -1179,18 +1179,131 @@
       const btn=this;const orig=btn.innerHTML;
       btn.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;animation:spin 1s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Generando…';
       btn.disabled=true;
+
+      const restoreAll=()=>{
+        // restore chart canvases
+        document.querySelectorAll('canvas[data-pdf-hidden]').forEach(c=>{
+          c.style.display='';c.removeAttribute('data-pdf-hidden');
+        });
+        document.querySelectorAll('img[data-pdf-chart]').forEach(i=>i.parentNode&&i.parentNode.removeChild(i));
+        // restore cross-origin images
+        document.querySelectorAll('img[data-pdf-src]').forEach(i=>{i.src=i.getAttribute('data-pdf-src');i.removeAttribute('data-pdf-src');});
+        // show nav
+        const nav=document.querySelector('.nav');if(nav)nav.style.display='';
+      };
+
       try{
-        const{jsPDF}=window.jspdf;const pdf=new jsPDF('p','mm','a4');
-        const pdfW=210,mg=12,usable=pdfW-mg*2;let y=mg+8;
-        const blocks=Array.from(document.querySelector('.main').children).filter(el=>!el.classList.contains('filter-bar')&&el.tagName!=='SCRIPT');
+        if(!window.jspdf||!window.html2canvas) throw new Error('Librerías PDF no cargadas.');
+        const{jsPDF}=window.jspdf;
+
+        // Hide sticky nav so it doesn't appear in captures
+        const nav=document.querySelector('.nav');if(nav)nav.style.display='none';
+
+        // Replace Chart.js canvases with static <img> snapshots
+        document.querySelectorAll('canvas').forEach(c=>{
+          try{
+            const snap=new Image();snap.src=c.toDataURL('image/png');
+            snap.style.cssText=`width:${c.offsetWidth}px;height:${c.offsetHeight}px;display:block`;
+            snap.setAttribute('data-pdf-chart','1');
+            c.insertAdjacentElement('afterend',snap);
+            c.style.display='none';c.setAttribute('data-pdf-hidden','1');
+          }catch(e){}
+        });
+
+        // Convert cross-origin <img> elements to data-URLs.
+        // Google Drive thumbnails redirect to lh3.googleusercontent.com which lacks CORS headers,
+        // so we fall back to a CORS proxy if the direct fetch fails.
+        const blobToDataURL=blob=>new Promise((res,rej)=>{
+          const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(blob);
+        });
+        const fetchImg=async url=>{
+          // 1. Try direct fetch
+          try{
+            const r=await fetch(url,{mode:'cors'});
+            if(r.ok) return blobToDataURL(await r.blob());
+          }catch(e){}
+          // 2. Fall back via CORS proxy
+          try{
+            const proxy='https://corsproxy.io/?'+encodeURIComponent(url);
+            const r=await fetch(proxy);
+            if(r.ok) return blobToDataURL(await r.blob());
+          }catch(e){}
+          return null;
+        };
+        const crossImgs=Array.from(document.querySelectorAll('.main img, .hero img'))
+          .filter(i=>i.src&&!i.src.startsWith('data:'));
+        await Promise.allSettled(crossImgs.map(async imgEl=>{
+          const dataURL=await fetchImg(imgEl.src);
+          if(dataURL){imgEl.setAttribute('data-pdf-src',imgEl.src);imgEl.src=dataURL;}
+        }));
+
+        const pdf=new jsPDF('p','mm','a4');
+        const pdfW=210,mg=12,usable=pdfW-mg*2,pageH=297;
+        const contentMaxH=pageH-mg*2; // usable height per page after margins
+
+        // Capture hero strip once
+        const heroEl=document.querySelector('.hero');
+        const heroCanvas=await html2canvas(heroEl,{scale:1.8,useCORS:true,allowTaint:true,backgroundColor:'#ffffff',logging:false});
+        const heroValid=heroCanvas.width>0&&heroCanvas.height>0;
+        const heroImg=heroValid?heroCanvas.toDataURL('image/jpeg',.92):null;
+        const heroPdfH=heroValid?Math.min(heroCanvas.height*(usable/heroCanvas.width),22):0;
+
+        const addHero=()=>{
+          if(heroImg&&heroPdfH>0) pdf.addImage(heroImg,'JPEG',mg,6,usable,heroPdfH);
+        };
+
+        addHero();
+        let y=6+heroPdfH+3;
+
+        const blocks=Array.from(document.querySelector('.main').children)
+          .filter(el=>!el.classList.contains('filter-bar')&&el.tagName!=='SCRIPT'&&!el.hasAttribute('data-pdf-skip'));
+
         for(const block of blocks){
-          const canvas=await html2canvas(block,{scale:1.5,useCORS:true,backgroundColor:'#f6f7f9'});
-          const img=canvas.toDataURL('image/jpeg',.85);const dh=canvas.height*(usable/canvas.width);
-          if(y+dh>297-mg){pdf.addPage();y=mg;}
-          pdf.addImage(img,'JPEG',mg,y,usable,dh);y+=dh+4;
+          const bc=await html2canvas(block,{scale:1.6,useCORS:true,allowTaint:true,backgroundColor:'#f6f7f9',logging:false});
+          if(!bc.width||!bc.height) continue;
+          const blockImg=bc.toDataURL('image/jpeg',.88);
+          // natural rendered height in mm
+          let dh=bc.height*(usable/bc.width);
+          if(!dh||dh<=0) continue;
+
+          const availH=pageH-mg-y;
+
+          if(dh<=availH){
+            // fits on current page
+            pdf.addImage(blockImg,'JPEG',mg,y,usable,dh);
+            y+=dh+5;
+          } else {
+            // Try next page first
+            const freshAvail=contentMaxH-heroPdfH-3;
+            if(dh<=freshAvail){
+              // fits on a fresh page
+              pdf.addPage();addHero();y=6+heroPdfH+3;
+              pdf.addImage(blockImg,'JPEG',mg,y,usable,dh);
+              y+=dh+5;
+            } else {
+              // block taller than a full page — scale it to fit
+              pdf.addPage();addHero();y=6+heroPdfH+3;
+              const scale=freshAvail/dh;
+              const scaledW=usable*scale;
+              const scaledH=dh*scale;
+              const offsetX=mg+(usable-scaledW)/2;
+              pdf.addImage(blockImg,'JPEG',offsetX,y,scaledW,scaledH);
+              y+=scaledH+5;
+            }
+          }
         }
+
+        restoreAll();
         pdf.save('Resultados_Steadler_Iberia.pdf');
-      }catch(err){console.error(err);alert('Error al generar el PDF.');}
+
+      }catch(err){
+        console.error(err);
+        restoreAll();
+        const errBox=document.createElement('div');
+        errBox.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a1a2e;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.3)';
+        errBox.textContent='Error al generar el PDF: '+(err.message||err);
+        document.body.appendChild(errBox);setTimeout(()=>errBox.remove(),5000);
+      }
       finally{btn.innerHTML=orig;btn.disabled=false;}
     });
 
@@ -1228,7 +1341,6 @@
   </script>
 </body>
 </html>
-
 
 
 
